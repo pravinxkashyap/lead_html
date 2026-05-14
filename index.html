@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trakop - Get Started</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            color: #1a1a1a;
+        }
+
+        .logo h1 span {
+            color: #4F46E5;
+        }
+
+        .logo p {
+            color: #666;
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+        .pipeline-status {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #666;
+            min-height: 20px;
+        }
+
+        .pipeline-status.sent {
+            color: #059669;
+        }
+
+        .pipeline-status.error {
+            color: #EF4444;
+        }
+
+        .divider {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        /* Match HubSpot form fields to your existing design */
+        .hs-form .hs-form-field {
+            margin-bottom: 16px;
+        }
+
+        .hs-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .hs-form input[type="text"],
+        .hs-form input[type="email"],
+        .hs-form input[type="tel"],
+        .hs-form select,
+        .hs-form textarea {
+            width: 100% !important;
+            padding: 10px 12px !important;
+            border: 1px solid #ddd !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-family: inherit !important;
+            box-sizing: border-box !important;
+        }
+
+        .hs-form input:focus,
+        .hs-form select:focus,
+        .hs-form textarea:focus {
+            outline: none !important;
+            border-color: #4F46E5 !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+        }
+
+        .hs-form textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .hs-form .hs-button {
+            width: 100% !important;
+            padding: 12px !important;
+            background: #4F46E5 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            margin-top: 8px !important;
+        }
+
+        .hs-form .hs-button:hover {
+            background: #4338CA !important;
+        }
+
+        .hs-error-msgs {
+            color: #EF4444;
+            font-size: 12px;
+            margin-top: 4px;
+            list-style: none;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <div class="logo">
+            <h1>Trak<span>op</span></h1>
+            <p>Delivery Management Software for Every Business</p>
+        </div>
+
+        <!-- HubSpot renders the form here -->
+        <div id="hs-form-target"></div>
+
+        <div class="pipeline-status" id="pipelineStatus"></div>
+        <div class="divider">— Test Form for Lead Automation —</div>
+    </div>
+
+    <!-- HubSpot embed script -->
+    <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/embed/v2.js"></script>
+    <script>
+        // ── CONFIG ── replace these two values with yours from Phase 3 Step 4
+        const PORTAL_ID = "246111122";   // e.g. "12345678"
+        const FORM_ID = "9c584467-e46f-4877-9e72-3613aed521a6";     // e.g. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+        // ── TUNNEL URL ── paste your Cloudflare tunnel URL here (from Phase 2 Step 3)
+        const TUNNEL_URL = "https://small-brands-shirt-tomato.trycloudflare.com";
+
+        hbspt.forms.create({
+            region: "na1",
+            portalId: PORTAL_ID,
+            formId: FORM_ID,
+            target: "#hs-form-target",
+
+            onFormSubmit: function (form) {
+                const statusEl = document.getElementById('pipelineStatus');
+                statusEl.textContent = '⏳ Sending to pipeline...';
+                statusEl.className = 'pipeline-status';
+
+                // Helper to pull field values from the HubSpot form DOM
+                const get = (name) => {
+                    const el = form.querySelector(`[name="${name}"]`);
+                    return el ? el.value.trim() : '';
+                };
+
+                const payload = {
+                    first_name: get('firstname'),
+                    last_name: get('lastname'),
+                    email: get('email'),
+                    business_type: get('business_type'),
+                    company_name: get('company'),
+                    country: get('country'),
+                    phone_number: get('phone'),
+                    requirements: get('requirements'),
+                    orders_per_day: get('orders_per_day'),
+                    customers_served: get('customers_served'),
+                    submitted_at: new Date().toISOString()
+                };
+
+                // POST to tunnel URL → server.js /submit → OpenClaw → pipeline
+                fetch(`${TUNNEL_URL}/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            statusEl.textContent = '✅ Pipeline triggered — check Telegram.';
+                            statusEl.className = 'pipeline-status sent';
+                        } else {
+                            statusEl.textContent = `⚠️ Pipeline error: ${data.error}`;
+                            statusEl.className = 'pipeline-status error';
+                        }
+                    })
+                    .catch(err => {
+                        statusEl.textContent = `⚠️ Could not reach pipeline: ${err.message}`;
+                        statusEl.className = 'pipeline-status error';
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>
