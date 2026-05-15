@@ -163,7 +163,7 @@
         const FORM_ID = "9c584467-e46f-4877-9e72-3613aed521a6";     // e.g. "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
         // ── TUNNEL URL ── paste your Cloudflare tunnel URL here (from Phase 2 Step 3)
-        const TUNNEL_URL = "https://jets-rabbit-that-invitations.trycloudflare.com";
+        const TUNNEL_URL = "https://scanner-grant-adventures-unknown.trycloudflare.com/";
 
         hbspt.forms.create({
             region: "na1",
@@ -205,15 +205,15 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.ok) {
-                            statusEl.textContent = '✅ Pipeline triggered — check Telegram.';
+                            statusEl.textContent = 'Pipeline triggered';
                             statusEl.className = 'pipeline-status sent';
                         } else {
-                            statusEl.textContent = `⚠️ Pipeline error: ${data.error}`;
+                            statusEl.textContent = `Pipeline error: ${data.error}`;
                             statusEl.className = 'pipeline-status error';
                         }
                     })
                     .catch(err => {
-                        statusEl.textContent = `⚠️ Could not reach pipeline: ${err.message}`;
+                        statusEl.textContent = `Could not reach pipeline: ${err.message}`;
                         statusEl.className = 'pipeline-status error';
                     });
             }
